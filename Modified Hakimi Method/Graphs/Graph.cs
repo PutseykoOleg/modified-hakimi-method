@@ -1,8 +1,5 @@
 ﻿namespace Hakimi.Graphs;
 
-// Алиас матрицы смежности
-using Matrix = List<List<double>>;
-
 // Класс взвешенного неориентированного графа (T - тип значения вершины)
 public class Graph
 {
@@ -113,17 +110,20 @@ public class Graph
 
     // Преобразование графа в матрицу смежности, значениями которой являются веса ребер,
     // а строки и столбцы - индексы вершин из списка
-    public Matrix ToMatrix()
+    public double[] ToMatrix()
     {
-        Matrix matrix = new();
+        int lineLength = this.Vertices.Count;
 
-        for (int i = 0; i < this.Vertices.Count; i++)
+        double[] matrix = new double[lineLength * lineLength];
+
+        for (int i = 0; i < lineLength; i++)
         {
-            matrix.Add(new());
-
-            for (int j = 0; j < this.Vertices.Count; j++)
+            for (int j = 0; j < lineLength; j++)
             {
-                matrix[i].Add(this.GetStraightWay(this.Vertices[i], this.Vertices[j]));
+                matrix[i * lineLength + j] = this.GetStraightWay(
+                    this.Vertices[i],
+                    this.Vertices[j]
+                );
             }
         }
 

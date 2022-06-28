@@ -12,8 +12,9 @@ public class ModifiedHakimiMethod : HakimiMethod
     private int P(int i, int j)
     {
         int result = 0;
+        int length = lineLength();
 
-        for (int s = 0; s < _minDistances.Count; s++)
+        for (int s = 0; s < length; s++)
         {
             if (s != i && s != j)
             {
@@ -27,6 +28,7 @@ public class ModifiedHakimiMethod : HakimiMethod
     private double H()
     {
         double result = Graph.MAX_VERTEX_VALUE;
+        int length = lineLength();
 
         for (int i = 0; i < _graph.Edges.Count; i++)
         {
@@ -42,7 +44,8 @@ public class ModifiedHakimiMethod : HakimiMethod
 
             result = Math.Min(
                 result,
-                P(indexes[0], indexes[1]) + (vs * _minDistances[indexes[0]][indexes[1]]) / 2
+                P(indexes[0], indexes[1])
+                    + (vs * MinDistances[indexes[0] * length + indexes[1]]) / 2
             );
         }
 

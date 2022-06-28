@@ -1,4 +1,5 @@
-﻿using Excel = Microsoft.Office.Interop.Excel;
+﻿using Hakimi.Graphs;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Hakimi.Utils;
 
@@ -6,7 +7,7 @@ public class ExcelHandler
 {
     private string _fileName;
 
-    public ExcelHandler(string fileName)
+    public ExcelHandler(string fileName = "")
     {
         this._fileName = fileName;
     }
@@ -47,5 +48,30 @@ public class ExcelHandler
         return new(formattedValues);
     }
 
-    public static void A() { }
+    public void WriteMatrixAsCSV(string fileName, Graph graph, double[] matrix)
+    {
+        int lineLength = (int)Math.Sqrt(matrix.Length);
+
+        using (StreamWriter sw = new StreamWriter(fileName))
+        {
+            sw.Write(",");
+
+            for (int i = 0; i < lineLength; i++)
+            {
+                sw.Write($"{graph.GetVertexByIndex(i)}{(i < lineLength ? ',' : "")}");
+            }
+
+            for (int i = 0; i < lineLength; i++)
+            {
+                for (int j = 0; j < lineLength; j++)
+                {
+                    string value = (matrix[i * lineLength + j]).ToString();
+                    sw.Write(
+                        $"{graph.GetVertexByIndex(i)},{value.Replace(',', '.')}{(j < lineLength ? ',' : "")}"
+                    );
+                }
+                sw.WriteLine();
+            }
+        }
+    }
 }

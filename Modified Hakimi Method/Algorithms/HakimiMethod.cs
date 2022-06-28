@@ -3,13 +3,12 @@ using Hakimi.Algorithms.Structs;
 
 namespace Hakimi.Algorithms;
 
-using Matrix = List<List<double>>;
-
 public class HakimiMethod
 {
     protected Graph _graph = new();
-    protected Matrix _minDistances = new();
     protected List<Edge> _edges = new();
+
+    public double[] MinDistances { get; protected set; }
 
     public HakimiMethod(Graph graph)
     {
@@ -18,14 +17,19 @@ public class HakimiMethod
 
         FloydWarshallAlgorithm fwa = new(graph);
 
-        this._minDistances = fwa.GetMinDistancesMatrix()
-            .Select(row => row.Select(x => x == Graph.MAX_VERTEX_VALUE ? 0 : x).ToList())
-            .ToList();
+        this.MinDistances = fwa.GetMinDistancesMatrix()
+            .Select(x => x == Graph.MAX_VERTEX_VALUE ? 0 : x)
+            .ToArray();
     }
 
-    protected double d(int i, int j) => i == j ? 0 : _minDistances[i][j];
+    protected int lineLength() => (int)Math.Sqrt(MinDistances.Length);
 
-    protected double maxPath(int vertexIndex) => _minDistances[vertexIndex].Max();
+    protected double d(int i, int j) => i == j ? 0 : MinDistances[i * lineLength() + j];
+
+    protected double maxPath(int vertexIndex) =>
+        MinDistances[
+            (vertexIndex * lineLength())..^(MinDistances.Length - (vertexIndex + 1) * lineLength())
+        ].Max();
 
     public List<AbsCenter> GetAbsCenter()
     {

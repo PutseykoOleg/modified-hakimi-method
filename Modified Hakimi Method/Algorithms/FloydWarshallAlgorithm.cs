@@ -2,9 +2,6 @@
 
 namespace Hakimi.Algorithms;
 
-// Алиас матрицы смежности
-using Matrix = List<List<double>>;
-
 // Класс, описывающий методы работы с алгоритмом Флойда-Уоршелла (T - тип значения вершины графа)
 public class FloydWarshallAlgorithm
 {
@@ -12,7 +9,7 @@ public class FloydWarshallAlgorithm
     public Graph Graph { get; private set; }
 
     // Матрица смежности (используется для хранения уже вычисленных значений)
-    private Matrix? _matrix { get; set; } = null;
+    private double[]? _matrix { get; set; } = null;
 
     // Конструктор
     public FloydWarshallAlgorithm(Graph graph)
@@ -20,40 +17,40 @@ public class FloydWarshallAlgorithm
         this.Graph = graph;
     }
 
-    public Matrix GetMinDistancesMatrix()
+    public double[] GetMinDistancesMatrix()
     {
-        // Конвертация графа в матрицу
-        this._matrix = new(this.Graph.ToMatrix());
-
         // Размер строки матрицы (длина списка вершин)
         int lineLength = this.Graph.Vertices.Count;
 
-        // Для каждой вершины
-        for (int k = 0; k < lineLength; k++)
+        // Конвертация графа в матрицу
+        this._matrix = new double[lineLength * lineLength];
+        double[] computedMatrix = this.Graph.ToMatrix();
+        Array.Copy(computedMatrix, this._matrix, lineLength * lineLength);
+
+        for (int k = 0; k < lineLength; ++k)
         {
-            // Для каждой строки матрицы
-            for (int i = 0; i < lineLength; i++)
-            {
-                // Для каждого столбца матрицы
-                for (int j = 0; j < lineLength; j++)
+            Parallel.For(
+                0,
+                lineLength,
+                (i) =>
                 {
-                    // Если индексы строки и столбца не совпадают, т.е. не петля и при этом существует путь от i до j, проходящий
-                    // через текущую вершину (k)
-                    if (
-                        i != j
-                        && this._matrix[i][k] != Graph.MAX_VERTEX_VALUE
-                        && this._matrix[k][j] != Graph.MAX_VERTEX_VALUE
-                    )
+                    if (this._matrix[i * lineLength + k] == Graph.MAX_VERTEX_VALUE)
                     {
-                        // Если такой путь меньше уже проложенного между i и j
-                        if (this._matrix[i][k] + this._matrix[k][j] < this._matrix[i][j])
+                        return;
+                    }
+
+                    for (int j = 0; j < lineLength; ++j)
+                    {
+                        double distance =
+                            this._matrix[i * lineLength + k] + this._matrix[k * lineLength + j];
+
+                        if (this._matrix[i * lineLength + j] > distance)
                         {
-                            // Установить новый кратчайший путь
-                            this._matrix[i][j] = this._matrix[i][k] + this._matrix[k][j];
+                            this._matrix[i * lineLength + j] = distance;
                         }
                     }
                 }
-            }
+            );
         }
 
         return this._matrix;
